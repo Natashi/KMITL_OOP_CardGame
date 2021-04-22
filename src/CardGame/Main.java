@@ -8,13 +8,16 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("CardGame.fxml"));
-        primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        
+        Scene primaryScene = new Scene(root, 1280, 720);
+        
+        primaryStage.setTitle("The Black Moon Howls from Beyond the End of Time");
+        primaryStage.setScene(primaryScene);
         primaryStage.show();
     }
-
+    
     public static void main(String[] args) {
         launch(args);
     }
