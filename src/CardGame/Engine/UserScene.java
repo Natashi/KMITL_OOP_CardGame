@@ -36,11 +36,13 @@ public class UserScene implements IDisposable {
 		bEnableUpdate_ = true;
 		bDelete_ = false;
 		bAutoDelete_ = true;
+		
+		listTask_ = new LinkedList<>();
 	}
 	@Override
 	public void Dispose() {}
 	
-	public void Render() {
+	public void Render() throws EngineError {
 		for (int iLayer = 0; iLayer < MAX_RENDER_LAYER; ++iLayer) {
 			for (var iTask : listTask_) {
 				if (iTask != null && !iTask.IsFinished())
@@ -48,7 +50,7 @@ public class UserScene implements IDisposable {
 			}
 		}
 	}
-	public void Update() {
+	public void Update() throws EngineError {
 		for (var itr = listTask_.iterator(); itr.hasNext();) {
 			UserTaskBase task = itr.next();
 			if (task != null && task.IsFinished()) {

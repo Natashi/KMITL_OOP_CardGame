@@ -1,8 +1,5 @@
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.canvas.*?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<GridPane fx:controller="CardGame.Controller"
-          xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10">
-</GridPane>
+<AnchorPane fx:id="mainAnchor_" maxHeight="-1.0" maxWidth="-1.0" prefHeight="600.0" prefWidth="800.0">
+</AnchorPane>

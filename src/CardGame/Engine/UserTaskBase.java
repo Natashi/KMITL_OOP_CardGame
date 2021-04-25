@@ -17,8 +17,8 @@ public class UserTaskBase implements IDisposable {
 	@Override
 	public void Dispose() {}
 	
-	public void Render(int layer) {}
-	public void Update() {}
+	public void Render(int layer) throws EngineError {}
+	public void Update() throws EngineError {}
 	
 	public UserScene GetParent() { return parent_; }
 	

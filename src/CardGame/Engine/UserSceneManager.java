@@ -39,7 +39,7 @@ public class UserSceneManager implements IDisposable {
 		listScene_.clear();
 	}
 	
-	public void Render() {
+	public void Render() throws EngineError {
 		primaryScene_.Render();
 		
 		for (var iScene : listScene_) {
@@ -50,7 +50,7 @@ public class UserSceneManager implements IDisposable {
 		
 		rearScene_.Render();
 	}
-	public void Update() {
+	public void Update() throws EngineError {
 		primaryScene_.Update();
 		
 		int i = 0;
