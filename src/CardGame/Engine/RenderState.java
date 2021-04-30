@@ -2,18 +2,24 @@ package CardGame.Engine;
 
 import CardGame.Engine.Math.*;
 
+import CardGame.Main;
+import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.BlendMode;
+
+import javafx.scene.image.Image;
+import javafx.scene.transform.*;
 
 public class RenderState {
+	public Vector2f origin_;
 	public Vector2f position_;
 	public Vector2f scale_;
 	public Vector3f angle_;
 	
-	private Vector2f _ax = new Vector2f();
-	private Vector2f _ay = new Vector2f();
-	private Vector2f _az = new Vector2f();
+	private Affine _affine = null;
 	
-	private Matrix3x3f _mat = new Matrix3x3f();
+	public BlendMode blendMode_;
+	public int alpha_;
 	
 	//----------------------------------------------
 	
@@ -27,42 +33,41 @@ public class RenderState {
 		this(pos, scale, new Vector3f(0, 0, 0));
 	}
 	public RenderState(Vector2f pos, Vector2f scale, Vector3f angle) {
+		origin_ = new Vector2f();
 		position_ = pos;
 		scale_ = scale;
 		angle_ = angle;
-		LoadAngle();
-	}
-	
-	public void LoadAngle() {
-		_ax.Set(Math.sin(angle_.x), Math.cos(angle_.x));
-		_ay.Set(Math.sin(angle_.y), Math.cos(angle_.y));
-		_az.Set(Math.sin(angle_.z), Math.cos(angle_.z));
+		
+		blendMode_ = BlendMode.SRC_OVER;
+		alpha_ = 255;
 	}
 	
 	public void LoadMat() {
-		Vector3f tmp = new Vector3f();
+		//Builds a transform matrix: scaling -> XYZ rotation -> translation
 		
-		tmp.Set(_ay.y * _az.y - _ax.x * _ay.x * _az.x,
-			-_ax.y * _az.x,
-			_ay.x * _az.y + _ax.x * _ay.y * _az.x);
-		tmp.Mul(scale_.x);
-		_mat.SetRow(0, tmp);
+		_affine = new Affine();
 		
-		tmp.Set(_ay.y * _az.x + _ax.x * _ay.x * _az.y,
-			_ax.y * _az.y,
-			_ay.x * _az.x - _ax.x * _ay.y * _az.y);
-		tmp.Mul(scale_.y);
-		_mat.SetRow(1, tmp);
+		_affine.appendTranslation(position_.x, position_.y);
 		
-		tmp.Set(0, 0, 1);
-		_mat.SetRow(2, tmp);
+		_affine.appendRotation(angle_.x, origin_.x, origin_.y, 0, Rotate.X_AXIS);
+		_affine.appendRotation(angle_.y, origin_.x, origin_.y, 0, Rotate.Y_AXIS);
+		_affine.appendRotation(angle_.z, origin_.x, origin_.y, 0, Rotate.Z_AXIS);
+		
+		_affine.appendScale(scale_.x, scale_.y, origin_.x, origin_.y);
+		
+		//_affine.appendTranslation(position_.x, position_.y);
 	}
 	public void Apply(GraphicsContext context) {
-		context.setTransform(_mat.m11, _mat.m12, _mat.m21, _mat.m22,
-			position_.x, position_.y);
+		context.setTransform(_affine);
+		context.setGlobalBlendMode(blendMode_);
+		context.setGlobalAlpha(alpha_ / 255.0);
 	}
 	public void LoadMatAndApply(GraphicsContext context) {
 		this.LoadMat();
 		this.Apply(context);
+	}
+	public void Render(GraphicsContext context, Image img) {
+		//context.drawImage(img, position_.x, position_.y);
+		context.drawImage(img, 0, 0);
 	}
 }
