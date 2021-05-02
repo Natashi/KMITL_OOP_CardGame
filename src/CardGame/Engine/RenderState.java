@@ -47,7 +47,7 @@ public class RenderState {
 		
 		_affine = new Affine();
 		
-		_affine.appendTranslation(position_.x, position_.y);
+		_affine.appendTranslation(position_.x - origin_.x, position_.y - origin_.y);
 		
 		_affine.appendRotation(angle_.x, origin_.x, origin_.y, 0, Rotate.X_AXIS);
 		_affine.appendRotation(angle_.y, origin_.x, origin_.y, 0, Rotate.Y_AXIS);

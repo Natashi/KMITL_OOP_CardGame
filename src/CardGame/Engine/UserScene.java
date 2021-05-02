@@ -53,12 +53,15 @@ public class UserScene implements IDisposable {
 	public void Update() throws EngineError {
 		for (var itr = listTask_.iterator(); itr.hasNext();) {
 			UserTaskBase task = itr.next();
-			if (task != null && task.IsFinished()) {
+			if (task != null && !task.IsFinished()) {
 				task.Update();
 				if (task.GetFrame() >= task.GetFrameEnd())
 					task.bFinish_ = true;
 			}
-			else itr.remove();
+			else {
+				if (task != null) task.Dispose();
+				itr.remove();
+			}
 		}
 		++frame_;
 	}

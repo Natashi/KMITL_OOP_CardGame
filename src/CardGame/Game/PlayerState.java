@@ -3,6 +3,7 @@ package CardGame.Game;
 import CardGame.Engine.Math.*;
 import CardGame.Engine.*;
 import CardGame.Main;
+import javafx.event.ActionEvent;
 
 import java.lang.*;
 import java.util.*;
@@ -10,10 +11,10 @@ import java.util.*;
 public class PlayerState {
 	public enum Action {
 		None,
-		DrawRegular,
-		DrawSpecial,
-		DrawRegularAndSpecial,
+		Draw,
 		Pass,
+		PassAndUseSpecial,
+		DrawAndUseSpecial,
 	}
 	
 	//----------------------------------------------
@@ -80,9 +81,54 @@ public class PlayerState {
 	}
 	public void UpdateCards() throws EngineError {
 		if (faceDownCard_ != null) faceDownCard_.Update();
-		for (var iCard : listFaceUpCards_)
-			if (iCard != null) iCard.Update();
+		for (var itr = listFaceUpCards_.iterator(); itr.hasNext();) {
+			RegularCardTask task = itr.next();
+			if (task.GetFrame() < task.GetFrameEnd()) {
+				task.Update();
+			}
+			else {
+				task.Dispose();
+				itr.remove();
+			}
+		}
 		//for (var iCard : listSpecialCards_)
 		//	iCard.Update();
+	}
+	
+	public int GetHeldCardCount() {
+		return listFaceUpCards_.size() + 1;
+	}
+	public int GetHeldCardValueTotal() {
+		int val = faceDownCard_.card_.GetValueNumeric();
+		for (var iCard : listFaceUpCards_)
+			val += iCard.card_.GetValueNumeric();
+		return val;
+	}
+	public int GetHeldCardValueFaceUp() {
+		int val = 0;
+		for (var iCard : listFaceUpCards_)
+			val += iCard.card_.GetValueNumeric();
+		return val;
+	}
+	
+	public void SetEndAllCards() {
+		if (faceDownCard_ != null) faceDownCard_.bEnd_ = true;
+		
+		PlayerState own = this;
+		new FrameTimer() {
+			private int iCard = 0;
+			@Override
+			public void Loop(ActionEvent actionEvent) {
+				if (frame_ % 4 == 0) {
+					if (iCard >= listFaceUpCards_.size()) {
+						this.Stop();
+						return;
+					}
+					listFaceUpCards_.get(iCard).bEnd_ = true;
+					++iCard;
+				}
+				++frame_;
+			}
+		}.Start();
 	}
 }

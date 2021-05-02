@@ -18,6 +18,8 @@ public class RegularCardTask extends UserTaskBase {
 		FaceDownToUp,
 	};
 	
+	public static final int CARD_HT = 140;
+	
 	//----------------------------------------------
 	
 	private RenderState renderState_;
@@ -26,6 +28,7 @@ public class RegularCardTask extends UserTaskBase {
 	public StartMode startMode_;
 	public float scale_;
 	public float faceScale_;	//[-1, 0) -> Face down, ([)0, 1] -> Face up
+	public boolean bEnd_;
 	
 	//----------------------------------------------
 	
@@ -40,6 +43,7 @@ public class RegularCardTask extends UserTaskBase {
 		startMode_ = start;
 		scale_ = 1;
 		faceScale_ = (start == StartMode.FaceUp) ? 1 : -1;
+		bEnd_ = false;
 		
 		renderState_.position_ = iniPos.clone();
 		renderState_.origin_ = new Vector2f(691 / 2.0f, 1056 / 2.0f);
@@ -70,19 +74,26 @@ public class RegularCardTask extends UserTaskBase {
 	}
 	@Override
 	public void Update() throws EngineError {
-		if (frame_ < 40) {
-			float tmp = frame_ / 39.0f;
-			
-			scale_ = Interpolate.Smooth(1.5f, 1, tmp) * (140 / 1056.0f);
-			renderState_.alpha_ = (int)Interpolate.Linear(0, 255, tmp);
+		if (!bEnd_) {
+			if (frame_ < 40) {
+				float tmp = frame_ / 39.0f;
+				
+				scale_ = Interpolate.Smooth(1.5f, 1, tmp) * (CARD_HT / 1056.0f);
+				renderState_.alpha_ = (int)Interpolate.Linear(0, 255, tmp);
+			}
+			else if ((startMode_ == StartMode.FaceDownToUp) && frame_ == 40 + 30) {
+				this.FlipToScale(1, 16);
+			}
+			renderState_.scale_.Set(Math.abs(scale_ * faceScale_), scale_);
 		}
-		else if ((startMode_ == StartMode.FaceDownToUp) && frame_ == 40 + 30) {
-			this.FlipToScale(1, 16);
+		else {
+			if (frameEnd_ == Integer.MAX_VALUE) {
+				this.MoveTo(GetRenderer().position_.x, GetRenderer().position_.y - 120,
+					40, Interpolate::Accelerate);
+				this.AlphaTo(0, 40);
+				frameEnd_ = frame_ + 40;
+			}
 		}
-		
-		//renderState_.position_.Set(400 + 200 * Math.cos(frame_ * 0.02f), 300 + 200 * Math.sin(frame_ * 0.02f));
-		renderState_.scale_.Set(Math.abs(scale_ * faceScale_), scale_);
-		//renderState_.angle_.z = frame_ * 1.6f;
 		
 		++frame_;
 	}
@@ -123,6 +134,20 @@ public class RegularCardTask extends UserTaskBase {
 				var pPos = own.GetRenderer().position_;
 				pPos.x = lerpFunc.apply(orgPos.x, x, tmp);
 				pPos.y = lerpFunc.apply(orgPos.y, y, tmp);
+				++frame_;
+			}
+		}.Start();
+	}
+	public void AlphaTo(int alpha, int time) {
+		int orgAlpha = GetRenderer().alpha_;
+		
+		RegularCardTask own = this;
+		new FrameTimer(time) {
+			@Override
+			public void Loop(ActionEvent actionEvent) {
+				float tmp = frame_ / (float)(duration_ - 1);
+				GetRenderer().alpha_ = (int)Interpolate.Smooth(
+					(float)orgAlpha, (float)alpha, tmp);
 				++frame_;
 			}
 		}.Start();
