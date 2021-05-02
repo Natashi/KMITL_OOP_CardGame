@@ -18,6 +18,8 @@ public class RegularCardTask extends UserTaskBase {
 		FaceDownToUp,
 	};
 	
+	public static final int CARD_IMG_W = 207;
+	public static final int CARD_IMG_H = 317;
 	public static final int CARD_HT = 140;
 	
 	//----------------------------------------------
@@ -46,7 +48,7 @@ public class RegularCardTask extends UserTaskBase {
 		bEnd_ = false;
 		
 		renderState_.position_ = iniPos.clone();
-		renderState_.origin_ = new Vector2f(691 / 2.0f, 1056 / 2.0f);
+		renderState_.origin_ = new Vector2f(CARD_IMG_W / 2.0f, CARD_IMG_H / 2.0f);
 		
 		if (!iniPos.equals(endPos))
 			MoveTo(endPos.x, endPos.y, 60, Interpolate::Decelerate);
@@ -78,7 +80,7 @@ public class RegularCardTask extends UserTaskBase {
 			if (frame_ < 40) {
 				float tmp = frame_ / 39.0f;
 				
-				scale_ = Interpolate.Smooth(1.5f, 1, tmp) * (CARD_HT / 1056.0f);
+				scale_ = Interpolate.Smooth(1.5f, 1, tmp) * (CARD_HT / (float)CARD_IMG_H);
 				renderState_.alpha_ = (int)Interpolate.Linear(0, 255, tmp);
 			}
 			else if ((startMode_ == StartMode.FaceDownToUp) && frame_ == 40 + 30) {
